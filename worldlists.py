@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-def reduce_world_ranking(event, clas, target_number):
+def reduce_world_list(event, clas, target_number):
    #url = 'https://www.iaaf.org/world-rankings/overall-ranking/men?regionType=countries&region=nor&page=1'
-   url = 'https://www.iaaf.org/world-rankings/pole-vault/men?regionType=world&page=1'
+   url = 'https://www.iaaf.org/records/toplists/jumps/pole-vault/outdoor/men/senior/2019?regionType=area&region=europe&page=1&bestResultsOnly=true'
    #url = 'https://www.iaaf.org/world-rankings/'+event+'/'+clas+'?regionType=area&region=europe&page=1'
    headers = {'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0'}
 
@@ -15,22 +15,22 @@ def reduce_world_ranking(event, clas, target_number):
    trows = soup.find_all('tr')
    full_ranking =[]
    for row in trows:
-      print(row)
+#     print(row)
       i = row.find(attrs={"data-th" : "Rank"})
       if i is not None:
          n = row.find(attrs={"data-th" : "Competitor"})
-         name = n.string
+         name = n.text
          c = row.find(attrs={"data-th" : "Nat"})
          country = c.text
-         s = row.find(attrs={"data-th" : "score"})
-         score = s.string
-         full_ranking.append( ( (name.strip(), country.strip(), score.strip()) ) )
+         m = row.find(attrs={"data-th" : "Mark"})
+         mark = m.string
+         full_ranking.append( ( (name.strip(), country.strip(), mark.strip()) ) )
    
    participants_per_country = {}
    reduced_ranking=[]  
    surplus_ranking=[]  
 
-   print (full_ranking)
+#  print (full_ranking)
    for i in full_ranking:
       c = i[1]
 #     print(c)
@@ -48,8 +48,10 @@ def reduce_world_ranking(event, clas, target_number):
       
    print('Standard = ', cutoff)
    print('Reduced ranking')
+   l = 0
    for i in reduced_ranking:
-      print(i)
+      l +=1
+      print(l,i)
 
    print('Surplus ranking')
    for i in surplus_ranking:
@@ -57,52 +59,10 @@ def reduce_world_ranking(event, clas, target_number):
          
    return cutoff, reduced_ranking, surplus_ranking
 
-def reduce_nortotal():
-   url = 'https://www.iaaf.org/world-rankings/overall-ranking/men?regionType=countries&region=nor&page=1'
-   headers = {'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0'}
-
-   r = requests.get(url, headers=headers)
-   #print(r.text)
-   soup = BeautifulSoup(r.text, 'html.parser')
-   trows = soup.find_all('tr')
-   full_ranking =[]
-   for row in trows:
-#     print(row)
-      i = row.find(attrs={"data-th" : "Rank"})
-      if i is not None:
-         n = row.find(attrs={"data-th" : "Competitor"})
-         name = n.string
-         c = row.find(attrs={"data-th" : "Nat"})
-         country = c.text
-         s = row.find(attrs={"data-th" : "score"})
-         score = s.string
-         d = row.find(attrs={"data-th" : "DOB"})
-         dob = d.string
-         full_ranking.append( ( (name.strip(), country.strip(), score.strip(), dob.strip()) ) )
-   
-   reduced_ranking=[]  
-
-#  years = ['1994', '1995', '1996', '1997', '1998', '1999']
-   years = ['1994', '1995', '1996']
-#  print (full_ranking)
-   for i in full_ranking:
-      c = i[1]
-#     print(c)
-
-
-      dob = i[3]
-      yob=dob[-4:]
-      if yob in years:
-         reduced_ranking.append(i)
-   print('Reduced ranking')
-   for i in reduced_ranking:
-      print(i)
-
-reduce_nortotal()
-"""
-c,r,s = reduce_world_ranking('pole-vault','men',32)
+    
+c,r,s = reduce_world_list('pole-vault','men',26)
 print (c)
-"""
+
 """
 classes = ['men', 'women']
 events = {}
